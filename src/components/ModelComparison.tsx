@@ -96,7 +96,7 @@ const ModelComparison = () => {
                 <PolarGrid stroke="hsl(210, 20%, 18%)" />
                 <PolarAngleAxis dataKey="model" tick={{ fontSize: 9, fill: "hsl(210, 15%, 55%)" }} />
                 <PolarRadiusAxis tick={{ fontSize: 9, fill: "hsl(210, 15%, 40%)" }} domain={[0, 100]} />
-                <Radar name="R²" dataKey="R²" stroke="hsl(190, 90%, 50%)" fill="hsl(190, 90%, 50%)" fillOpacity={0.15} />
+                <Radar name="R2" dataKey="R2" stroke="hsl(190, 90%, 50%)" fill="hsl(190, 90%, 50%)" fillOpacity={0.15} />
                 <Radar name="NSE" dataKey="NSE" stroke="hsl(170, 80%, 45%)" fill="hsl(170, 80%, 45%)" fillOpacity={0.1} />
                 <Radar name="1-RMSE" dataKey="1-RMSE" stroke="hsl(45, 95%, 55%)" fill="hsl(45, 95%, 55%)" fillOpacity={0.1} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
