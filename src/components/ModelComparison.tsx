@@ -7,9 +7,9 @@ import aiModelImg from "@/assets/ai-model.jpg";
 
 const ModelComparison = () => {
   const radarData = modelMetrics.map((m) => ({
-    model: m.model.length > 10 ? m.model.slice(0, 10) + "…" : m.model,
-    R²: +(m.r2 * 100).toFixed(1),
-    NSE: +(m.nse * 100).toFixed(1),
+    model: m.model.length > 10 ? m.model.slice(0, 10) + "..." : m.model,
+    "R2": +(m.r2 * 100).toFixed(1),
+    "NSE": +(m.nse * 100).toFixed(1),
     "1-RMSE": +((1 - m.rmse / 2) * 100).toFixed(1),
     "1-MAE": +((1 - m.mae / 2) * 100).toFixed(1),
   }));
