@@ -1,3 +1,3 @@
-# Welcome to your Lovable project
+# AquaSense Predictor
 
 TODO: Document your project here
