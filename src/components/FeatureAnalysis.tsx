@@ -1,212 +1,193 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
-  Treemap, PieChart, Pie, RadialBarChart, RadialBar, PolarAngleAxis, PolarGrid, PolarRadiusAxis, LineChart, Line, Legend, AreaChart, Area
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
 
-import { featureImportance, correlationMatrix } from "@/data/mockData";
+/* ================================
+   🔥 SIMULATION INPUTS
+================================ */
 
-const categoryColors: Record<string, string> = {
-  Physical: "#22d3ee",
-  Chemical: "#34d399",
-  Biological: "#4edccc",
-  Nutrient: "#4ade80",
-  Pollutant: "#4ade80",
-  Turbidity: "#4ade80",
-  Microbial: "#4ade80",
-  Organic: "#4ade80",
-  Inorganic: "#4ade80",
-  HeavyMetal: "#4ade80",
-  Pesticide: "#4ade80",
-  Herbicide: "#4ade80",
-  Fungicide: "#4ade80",
-  Insecticide: "#4ade80",
-  Other: "#4ade80",
-  Pathogen: "#4ade80",
-  Atmospheric: "#f59e0b",
-};
+export default function GodDashboardAdvanced() {
+  const [inputs, setInputs] = useState({
+    temperature: 25,
+    ph: 7.2,
+    turbidity: 3,
+  });
 
-export default function FeatureAnalysisGod() {
-  const [activeFeature, setActiveFeature] = useState<string | null>(null);
+  const [prediction, setPrediction] = useState(7.5);
+  const [confidence, setConfidence] = useState(97);
 
-  const topFeature = [...featureImportance].sort((a, b) => b.importance - a.importance)[0];
+  const [history, setHistory] = useState<any[]>([]);
 
-  const strongestCorr = [...correlationMatrix].sort(
-    (a, b) => Math.abs(b.value) - Math.abs(a.value)
-  )[0];
+  /* ================================
+     🧠 SIMULATION ENGINE
+  ================================= */
 
-  const treemapData = featureImportance.map((f) => ({
-    name: f.feature,
-    size: f.importance * 1000,
-    importance: f.importance,
-  }));
+  const calculatePrediction = (t: number, ph: number, turb: number) => {
+    let base = 8;
+
+    base -= t * 0.05;        // higher temp lowers oxygen
+    base += (ph - 7) * 0.3;  // pH influence
+    base -= turb * 0.2;      // turbidity reduces oxygen
+
+    return Math.max(4, Math.min(10, base));
+  };
+
+  /* ================================
+     ⚡ UPDATE SYSTEM
+  ================================= */
+
+  useEffect(() => {
+    const newPrediction = calculatePrediction(
+      inputs.temperature,
+      inputs.ph,
+      inputs.turbidity
+    );
+
+    setPrediction(+newPrediction.toFixed(2));
+    setConfidence(+(95 + Math.random() * 3).toFixed(2));
+
+    // update time series
+    setHistory((prev) => [
+      ...prev.slice(-20),
+      {
+        time: new Date().toLocaleTimeString(),
+        value: newPrediction,
+      },
+    ]);
+  }, [inputs]);
+
+  /* ================================
+     🧠 AI REASONING ENGINE
+  ================================= */
+
+  const reasoning = [];
+
+  if (inputs.temperature > 28)
+    reasoning.push("High temperature reduces dissolved oxygen");
+
+  if (inputs.turbidity > 5)
+    reasoning.push("High turbidity negatively impacts oxygen levels");
+
+  if (inputs.ph > 7)
+    reasoning.push("Slightly alkaline pH increases oxygen stability");
+
+  if (reasoning.length === 0)
+    reasoning.push("All parameters are within optimal range");
+
+  /* ================================
+     🎯 UI
+  ================================= */
 
   return (
-    <section className="py-28 relative">
-      {/* 🔥 BACKGROUND */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(34,211,238,0.08),transparent_40%)]" />
+    <section className="py-32 px-6">
 
-      <div className="container mx-auto px-6 relative z-10">
+      {/* HEADER */}
+      <div className="text-center mb-16">
+        <h2 className="text-5xl font-bold">
+          AI Simulation <span className="text-cyan-400">Engine</span>
+        </h2>
+        <p className="text-gray-400 mt-2">
+          Interactive prediction + reasoning + time-series intelligence
+        </p>
+      </div>
 
-        {/* HEADER */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-5xl font-extrabold">
-            <span className="text-white">Feature </span>
-            <span className="text-cyan-400">Intelligence</span>
-          </h2>
-          <p className="text-gray-400 mt-3">
-            Explainability + correlation + AI-driven insights
-          </p>
-        </motion.div>
+      {/* ================= INPUT CONTROLS ================= */}
+      <div className="grid md:grid-cols-3 gap-6 mb-16">
 
-        {/* 🔥 INSIGHTS PANEL */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          className="mb-10 grid md:grid-cols-2 gap-6"
-        >
-          <div className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl">
-            <p className="text-xs text-gray-400">Top Driver</p>
-            <h3 className="text-xl font-bold text-cyan-400">
-              {topFeature.feature}
-            </h3>
-            <p className="text-sm text-gray-400 mt-2">
-              Importance: {(topFeature.importance * 100).toFixed(2)}%
+        {[
+          { key: "temperature", label: "Temperature (°C)", min: 10, max: 40 },
+          { key: "ph", label: "pH Level", min: 5, max: 9 },
+          { key: "turbidity", label: "Turbidity", min: 0, max: 10 },
+        ].map((item) => (
+          <div key={item.key} className="p-6 bg-white/5 rounded-xl border border-white/10">
+            <p className="text-sm text-gray-400">{item.label}</p>
+
+            <input
+              type="range"
+              min={item.min}
+              max={item.max}
+              step="0.1"
+              value={(inputs as any)[item.key]}
+              onChange={(e) =>
+                setInputs({
+                  ...inputs,
+                  [item.key]: parseFloat(e.target.value),
+                })
+              }
+              className="w-full mt-4"
+            />
+
+            <p className="text-cyan-400 mt-2 font-bold">
+              {(inputs as any)[item.key]}
             </p>
           </div>
+        ))}
+      </div>
 
-          <div className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl">
-            <p className="text-xs text-gray-400">Strongest Correlation</p>
-            <h3 className="text-xl font-bold text-pink-400">
-              {strongestCorr.x} ↔ {strongestCorr.y}
-            </h3>
-            <p className="text-sm text-gray-400 mt-2">
-              Value: {strongestCorr.value.toFixed(2)}
-            </p>
-          </div>
-        </motion.div>
+      {/* ================= OUTPUT ================= */}
+      <div className="grid md:grid-cols-3 gap-6 mb-16">
 
-        <div className="grid lg:grid-cols-2 gap-8 mb-10">
-
-          {/* 🔥 SHAP BAR CHART */}
-          <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            className="rounded-2xl p-6 bg-white/5 border border-white/10"
-          >
-            <h3 className="text-white mb-4 font-semibold">
-              SHAP Importance
-            </h3>
-
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart
-                data={featureImportance}
-                layout="vertical"
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-                <XAxis type="number" stroke="#6b7280" />
-                <YAxis dataKey="feature" type="category" width={120} stroke="#6b7280" />
-
-                <Tooltip />
-
-                <Bar dataKey="importance">
-                  {featureImportance.map((entry) => (
-                    <Cell
-                      key={entry.feature}
-                      fill={categoryColors[entry.category]}
-                      opacity={activeFeature && activeFeature !== entry.feature ? 0.2 : 1}
-                      onMouseEnter={() => setActiveFeature(entry.feature)}
-                      onMouseLeave={() => setActiveFeature(null)}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </motion.div>
-
-          {/* 🔥 TREEMAP */}
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            className="rounded-2xl p-6 bg-white/5 border border-white/10"
-          >
-            <h3 className="text-white mb-4 font-semibold">
-              Feature Space
-            </h3>
-
-            <ResponsiveContainer width="100%" height={400}>
-              <Treemap
-                data={treemapData}
-                dataKey="size"
-                stroke="#111827"
-                content={({ x, y, width, height, name }: { x: number; y: number; width: number; height: number; name: string }) => {
-                  const isActive = activeFeature === name;
-
-                  return (
-                    <g>
-                      <motion.rect
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        x={x}
-                        y={y}
-                        width={width}
-                        height={height}
-                        rx={8}
-                        fill="#22d3ee"
-                        opacity={isActive ? 1 : 0.4}
-                      />
-                      <text
-                        x={x + width / 2}
-                        y={y + height / 2}
-                        textAnchor="middle"
-                        fill="white"
-                        fontSize={12}
-                      >
-                        {name}
-                      </text>
-                    </g>
-                  );
-                }}
-              />
-            </ResponsiveContainer>
-          </motion.div>
-        </div>
-
-        {/* 🔥 HEATMAP (UPGRADED INTERACTIVE) */}
-        <div className="rounded-2xl p-6 bg-white/5 border border-white/10">
-          <h3 className="text-white mb-4 font-semibold">
-            Correlation Matrix
+        <div className="p-6 bg-black/40 rounded-xl border border-cyan-400/20">
+          <p className="text-gray-400 text-sm">Prediction</p>
+          <h3 className="text-3xl text-green-400 font-bold">
+            {prediction} mg/L
           </h3>
-
-          <div className="grid grid-cols-10 gap-1">
-            {correlationMatrix.map((c, i) => {
-              const intensity = Math.abs(c.value);
-
-              return (
-                <motion.div
-                  key={i}
-                  whileHover={{ scale: 1.2 }}
-                  className="aspect-square rounded-md flex items-center justify-center text-xs cursor-pointer"
-                  style={{
-                    background: c.value > 0
-                      ? `rgba(34,211,238,${intensity})`
-                      : `rgba(239,68,68,${intensity})`,
-                  }}
-                  title={`${c.x} × ${c.y}`}
-                >
-                  {c.value.toFixed(1)}
-                </motion.div>
-              );
-            })}
-          </div>
         </div>
+
+        <div className="p-6 bg-black/40 rounded-xl border border-cyan-400/20">
+          <p className="text-gray-400 text-sm">Confidence</p>
+          <h3 className="text-3xl text-cyan-400 font-bold">
+            {confidence}%
+          </h3>
+        </div>
+
+        <div className="p-6 bg-black/40 rounded-xl border border-cyan-400/20">
+          <p className="text-gray-400 text-sm">Status</p>
+          <h3 className="text-3xl text-blue-400 font-bold">
+            {prediction > 6 ? "Optimal" : "Risk"}
+          </h3>
+        </div>
+
+      </div>
+
+      {/* ================= REASONING ================= */}
+      <div className="mb-16 p-6 bg-white/5 rounded-xl border border-white/10">
+        <h3 className="text-white font-semibold mb-4">
+          AI Reasoning Engine
+        </h3>
+
+        <div className="space-y-2 text-sm text-gray-300">
+          {reasoning.map((r, i) => (
+            <p key={i}>• {r}</p>
+          ))}
+        </div>
+      </div>
+
+      {/* ================= TIME SERIES ================= */}
+      <div className="p-6 bg-white/5 rounded-xl border border-white/10">
+        <h3 className="text-white mb-4 font-semibold">
+          Prediction Trend (Live)
+        </h3>
+
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={history}>
+            <CartesianGrid stroke="#1f2937" />
+            <XAxis dataKey="time" stroke="#6b7280" />
+            <YAxis stroke="#6b7280" />
+            <Tooltip />
+            <Line
+              type="monotone"
+              dataKey="value"
+              stroke="#22d3ee"
+              strokeWidth={2}
+              dot={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
     </section>
   );
